@@ -57,23 +57,35 @@ func UpdateTodo(w http.ResponseWriter, r *http.Request) {
 	idStr := strings.TrimPrefix(r.URL.Path, "/todo/")
 	todoID, err := strconv.ParseUint(idStr, 10, 32)
 	if err != nil {
-		http.Error(w, "Invalid todo ID", 400)
+		http.Error(w, "Invalid todo ID", http.StatusBadRequest)
 		return
 	}
 
-	var todo models.Todo
-	if err := json.NewDecoder(r.Body).Decode(&todo); err != nil {
-		http.Error(w, "Invalid request body", 400)
+	var input models.Todo
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
 
-	if err := db.DB.Model(&models.Todo{}).Where("id = ?", todoID).Updates(&todo).Error; err != nil {
-		http.Error(w, err.Error(), 500)
+	result := db.DB.
+		Model(&models.Todo{}).
+		Where("id = ?", todoID).
+		Updates(&input)
+
+	if result.Error != nil {
+		http.Error(w, result.Error.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	if result.RowsAffected == 0 {
+		http.Error(w, "Todo not found", http.StatusNotFound)
+		return
+	}
+
+	input.ID = uint(todoID)
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(todo)
+	json.NewEncoder(w).Encode(input)
 }
 
 func DeleteTodo(w http.ResponseWriter, r *http.Request) {

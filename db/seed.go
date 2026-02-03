@@ -231,6 +231,28 @@ func SeedTodos() {
 		DB.FirstOrCreate(&todo, models.Todo{UserID: todo.UserID, Title: todo.Title})
 	}
 }
+func SeedEducations() {
+	educations := []models.Education{
+		{
+			StudentName: "Ali Khan",
+			Course:      "Computer Science",
+			Grade:       "A",
+		},
+		{
+			StudentName: "Sara Ahmed",
+			Course:      "Software Engineering",
+			Grade:       "A+",
+		},
+		{
+			StudentName: "Usman Raza",
+			Course:      "Information Technology",
+			Grade:       "B",
+		}}
+
+	for _, edu := range educations {
+		DB.FirstOrCreate(&edu, models.Education{StudentName: edu.StudentName, Course: edu.Course})
+	}
+}
 
 func strPtr(s string) *string {
 	return &s
@@ -240,4 +262,5 @@ func Seed() {
 	SeedUsers()
 	SeedStaff()
 	SeedTodos()
+	SeedEducations()
 }

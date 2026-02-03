@@ -65,4 +65,18 @@ func RegisterRoutes() {
 		}
 		w.WriteHeader(http.StatusMethodNotAllowed)
 	})
+
+	http.HandleFunc("/Education/", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodGet {
+			handlers.GetEducations(w, r)
+			return
+		} else if r.Method == http.MethodPost {
+			handlers.CreateEducation(w, r)
+			return
+		} else if r.Method == http.MethodPut {
+			handlers.UpdateEducation(w, r)
+			return
+		}
+		w.WriteHeader(http.StatusMethodNotAllowed)
+	})
 }
