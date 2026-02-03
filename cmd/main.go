@@ -3,8 +3,6 @@ package main
 import (
 	"log"
 	"net/http"
-	"os"
-	"path/filepath"
 
 	"goapi/db"
 	"goapi/models"
@@ -14,17 +12,14 @@ import (
 )
 
 func main() {
-	// Load .env file from project root
-	envPath := filepath.Join(os.Getenv("PWD"), ".env")
-	if err := godotenv.Load(envPath); err != nil {
-		// Try loading from parent directory if running from cmd/
-		if err := godotenv.Load("../.env"); err != nil {
-			log.Println("Warning: Could not load .env file")
-		}
+	// Load .env file
+	if err := godotenv.Load("../.env"); err != nil {
+		log.Println("Error loading .env file:", err)
 	}
 
+	// Connect to database
 	if err := db.Connect(); err != nil {
-		log.Fatal(err)
+		log.Fatal("Failed to connect to database:", err)
 	}
 
 	// Auto create tables
@@ -32,8 +27,10 @@ func main() {
 		&models.Staff{},
 		&models.User{},
 		&models.Todo{},
+		&models.Education{},
 	)
 
+	log.Println("Database migrated successfully")
 	log.Println("Database migrated successfully")
 
 	// Seed database
